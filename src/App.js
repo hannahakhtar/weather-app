@@ -1,9 +1,10 @@
 import React from 'react'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 
-import Home from './components/Home'
+import Home from './containers/Home'
+import Search from './containers/Search'
 
-import './App.css'
+import './App.scss'
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <BrowserRouter>
         <Switch>
           <Route exact path="/weather-app" component={Home} />
+          <Route exact path="/weather-app/search" component={Search} />
           <Redirect to="/quiz/not-found" />
         </Switch>
       </BrowserRouter>
