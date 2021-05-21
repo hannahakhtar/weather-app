@@ -21,7 +21,7 @@ export default function Search() {
     console.log(data)
     setSearchResults(data)
     setUserSubmitted(true)
-    if (data.length === 0) {
+    if (data.length === 0 || data.length > 1) {
       setLoading(false)
     }
     if (data.length === 1) {
