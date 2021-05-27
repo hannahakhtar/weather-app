@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Card({ weatherStateAbbreviation, imageLink, cityName, windSpeed, windDirection, windCompass, Humidity, Visibility, airPressure, minTemp, maxTemp, tempScale }) {
+export default function Card({ weatherStateAbbreviation, date, cityName, windSpeed, windDirection, windCompass, Humidity, Visibility, airPressure, minTemp, maxTemp, tempScale }) {
   return (
     <div className="card">
       <div className="card-image">
@@ -8,6 +8,7 @@ export default function Card({ weatherStateAbbreviation, imageLink, cityName, wi
       </div>
       <div className="card-content">
         <h2>{cityName}</h2>
+        <p>{date}</p>
       </div>
       <div className="content">
         <p>Wind speed: {windSpeed.toFixed(0)} mph</p>

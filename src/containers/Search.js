@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Switch from "react-switch"
 import axios from 'axios'
+import moment from 'moment'
 
 import Loader from "react-loader-spinner"
 
@@ -16,6 +17,7 @@ export default function Search() {
   const [displayCard, setDisplayCard] = useState(false)
   const [loading, setLoading] = useState(false)
   const [tempScale, setTempScale] = useState('celsius')
+  const [applicableDate, setApplicableDate] = useState('')
   const [minTemp, setMinTemp] = useState('')
   const [maxTemp, setMaxTemp] = useState('')
   const [checked, setChecked] = useState(false)
@@ -37,6 +39,7 @@ export default function Search() {
     async function fetchAllLocationData() {
       const { data } = await axios.get(`https://stormy-atoll-29846.herokuapp.com/metaweather.com/api/location/${woeid}`)
       setAllLocationData(data)
+      setApplicableDate(moment(data.consolidated_weather[0].applicable_date).format('DD/MM/YYYY'))
       setMinTemp(data.consolidated_weather[0].min_temp)
       setMaxTemp(data.consolidated_weather[0].max_temp)
       setDisplayCard(true)
@@ -101,6 +104,7 @@ export default function Search() {
       <Card
         weatherStateAbbreviation={allLocationData.consolidated_weather[0].weather_state_abbr}
         cityName={allLocationData.title}
+        date={applicableDate}
         windSpeed={allLocationData.consolidated_weather[0].wind_speed}
         windDirection={allLocationData.consolidated_weather[0].wind_direction}
         windCompass={allLocationData.consolidated_weather[0].wind_direction_compass}
