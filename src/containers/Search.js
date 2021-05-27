@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import Switch from "react-switch"
 import axios from 'axios'
 
 import Loader from "react-loader-spinner"
@@ -14,11 +15,14 @@ export default function Search() {
   const [woeid, setWoeid] = useState('')
   const [displayCard, setDisplayCard] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [tempScale, setTempScale] = useState('celsius')
+  const [minTemp, setMinTemp] = useState('')
+  const [maxTemp, setMaxTemp] = useState('')
+  const [checked, setChecked] = useState(false)
 
   async function handleSubmit() {
     setLoading(true)
     const { data } = await axios.get(`https://stormy-atoll-29846.herokuapp.com/metaweather.com/api/location/search/?query=${search}`)
-    console.log(data)
     setSearchResults(data)
     setUserSubmitted(true)
     if (data.length === 0 || data.length > 1) {
@@ -33,12 +37,48 @@ export default function Search() {
     async function fetchAllLocationData() {
       const { data } = await axios.get(`https://stormy-atoll-29846.herokuapp.com/metaweather.com/api/location/${woeid}`)
       setAllLocationData(data)
-      console.log(data)
+      setMinTemp(data.consolidated_weather[0].min_temp)
+      setMaxTemp(data.consolidated_weather[0].max_temp)
       setDisplayCard(true)
       setLoading(false)
     }
     fetchAllLocationData()
   }, [woeid])
+
+
+  function handleToggle() {
+    if (tempScale === 'celsius') {
+      setTempScale('fahrenheit')
+      setChecked(true)
+      convertMinTempToFahrenheit(minTemp)
+      convertMaxTempToFahrenheit(maxTemp)
+    } else {
+      setTempScale('celsius')
+      setChecked(false)
+      convertMinTempToCelsius(minTemp)
+      convertMaxTempToCelsius(maxTemp)
+    }
+  }
+
+  function convertMinTempToFahrenheit(temp) {
+    const conversion = (temp * (9 / 5) + 32)
+    setMinTemp(conversion)
+  }
+
+  function convertMaxTempToFahrenheit(temp) {
+    const conversion = (temp * (9 / 5) + 32)
+    setMaxTemp(conversion)
+  }
+
+  function convertMinTempToCelsius(temp) {
+    const conversion = ((temp - 32) * 5 / 9)
+    setMinTemp(conversion)
+  }
+
+  function convertMaxTempToCelsius(temp) {
+    const conversion = ((temp - 32) * 5 / 9)
+    setMaxTemp(conversion)
+  }
 
   if (loading) {
     return (
@@ -59,7 +99,7 @@ export default function Search() {
   } else if (allLocationData && userSubmitted && displayCard) {
     results = <>
       <Card
-        weatherStateAbbreviation={`https://www.metaweather.com/static/img/weather/png/${allLocationData.consolidated_weather[0].weather_state_abbr}.png`}
+        weatherStateAbbreviation={allLocationData.consolidated_weather[0].weather_state_abbr}
         cityName={allLocationData.title}
         windSpeed={allLocationData.consolidated_weather[0].wind_speed}
         windDirection={allLocationData.consolidated_weather[0].wind_direction}
@@ -67,8 +107,10 @@ export default function Search() {
         Humidity={allLocationData.consolidated_weather[0].humidity}
         Visibility={allLocationData.consolidated_weather[0].visibility}
         airPressure={allLocationData.consolidated_weather[0].air_pressure}
-        minTemp={allLocationData.consolidated_weather[0].min_temp}
-        maxTemp={allLocationData.consolidated_weather[0].max_temp}
+        minTemp={minTemp}
+        maxTemp={maxTemp}
+        tempScale={tempScale}
+
       />
     </>
   } else if (searchResults.length > 1 && userSubmitted) {
@@ -87,6 +129,18 @@ export default function Search() {
       <h1>Search</h1>
       <input className="input" type="text" placeholder="Search here" onChange={(e) => setSearch(e.target.value)} />
       <button className="submit" onClick={handleSubmit}>Search</button>
+      <label>
+        <span>Celsius</span>
+        <Switch
+          checked={checked}
+          onChange={handleToggle}
+          offColor="#0bfc03"
+          onColor="#9e31a8"
+          uncheckedIcon={false}
+          checkedIcon={false}
+        />
+        <span>Fahrenheit</span>
+      </label>
       {results}
     </>
   )

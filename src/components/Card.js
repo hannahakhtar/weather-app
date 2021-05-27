@@ -1,10 +1,10 @@
 import React from 'react'
 
-export default function Card({ imageLink, cityName, windSpeed, windDirection, windCompass, Humidity, Visibility, airPressure, minTemp, maxTemp }) {
+export default function Card({ weatherStateAbbreviation, imageLink, cityName, windSpeed, windDirection, windCompass, Humidity, Visibility, airPressure, minTemp, maxTemp, tempScale }) {
   return (
     <div className="card">
       <div className="card-image">
-        <img href={imageLink} alt={`View of current weather state in ${cityName}`} />
+        <img src={`https://www.metaweather.com/static/img/weather/png/${weatherStateAbbreviation}.png`} alt={`View of current weather state in ${cityName}`} />
       </div>
       <div className="card-content">
         <h2>{cityName}</h2>
@@ -15,7 +15,7 @@ export default function Card({ imageLink, cityName, windSpeed, windDirection, wi
         <p>Humidity: {Humidity}%</p>
         <p>Visibility: {Visibility.toFixed(0)} miles</p>
         <p>Air Pressure: {airPressure.toFixed(0)} mbar</p>
-        <p>Temperature range (min-max): {minTemp.toFixed(0)} - {maxTemp.toFixed(0)} degrees</p>
+        <p>Temperature range (min-max): {minTemp.toFixed(0)} - {maxTemp.toFixed(0)} degrees {tempScale}</p>
       </div>
     </div>
   )
