@@ -4,23 +4,31 @@ import axios from 'axios'
 import moment from 'moment'
 
 import Loader from "react-loader-spinner"
+import DatePicker from "react-datepicker"
 
 import Navbar from '../components/Navbar'
 import Card from '../components/Card'
 
 export default function Search() {
+  const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [allLocationData, setAllLocationData] = useState({})
   const [userSubmitted, setUserSubmitted] = useState(false)
+
+  // card state
   const [woeid, setWoeid] = useState('')
   const [displayCard, setDisplayCard] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [tempScale, setTempScale] = useState('celsius')
   const [applicableDate, setApplicableDate] = useState('')
   const [minTemp, setMinTemp] = useState('')
   const [maxTemp, setMaxTemp] = useState('')
   const [checked, setChecked] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(true)
+
+  // date picker state
+  const [date, setDate] = useState(new Date())
+  const [dateForFetch, setDateForFetch] = useState('')
 
   async function handleSubmit() {
     setLoading(true)
@@ -34,6 +42,13 @@ export default function Search() {
       setWoeid(data[0].woeid)
     }
   }
+
+  async function handleDateSubmit() {
+    // setLoading(true)
+    const { data } = await axios.get(`https://stormy-atoll-29846.herokuapp.com/metaweather.com/api/location/${woeid}/${dateForFetch}/`)
+    console.log(data)
+  }
+
 
   useEffect(() => {
     async function fetchAllLocationData() {
@@ -49,7 +64,7 @@ export default function Search() {
   }, [woeid])
 
 
-  function handleToggle() {
+  function handleTemperatureToggle() {
     if (tempScale === 'celsius') {
       setTempScale('fahrenheit')
       setChecked(true)
@@ -95,6 +110,27 @@ export default function Search() {
     )
   }
 
+  function onInputChange(e) {
+    setSearch(e)
+    if (e.length > 0) {
+      setIsDisabled(false)
+    } else {
+      setIsDisabled(true)
+    }
+  }
+
+  function addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  function handleDateChange(date) {
+    setDate(date)
+    setDateForFetch((moment(date).format('YYYY/MM/DD')))
+    console.log(moment(date).format('YYYY/MM/DD'))
+  }
+
   let results
 
   if (searchResults.length === 0 && userSubmitted) {
@@ -127,17 +163,18 @@ export default function Search() {
     </>
   }
 
+
   return (
     <>
       <Navbar />
       <h1>Search</h1>
-      <input className="input" type="text" placeholder="Search here" onChange={(e) => setSearch(e.target.value)} />
-      <button className="submit" onClick={handleSubmit}>Search</button>
+      <input className="input" type="text" placeholder="Search here" onChange={(e) => onInputChange(e.target.value)} />
+      <button className="submit" onClick={handleSubmit} disabled={isDisabled}>Search</button>
       <label>
         <span>Celsius</span>
         <Switch
           checked={checked}
-          onChange={handleToggle}
+          onChange={handleTemperatureToggle}
           offColor="#0bfc03"
           onColor="#9e31a8"
           uncheckedIcon={false}
@@ -146,6 +183,16 @@ export default function Search() {
         <span>Fahrenheit</span>
       </label>
       {results}
+      <DatePicker
+        selected={date}
+        onChange={(date) => handleDateChange(date)}
+        showMonthDropdown
+        showYearDropdown
+        dropdownMode="select"
+        maxDate={addDays(new Date(), 5)}
+      // onSelect={handleDateSelect}        
+      />
+      <button className="submit" onClick={handleDateSubmit}>Let's Go!</button>
     </>
   )
 }
