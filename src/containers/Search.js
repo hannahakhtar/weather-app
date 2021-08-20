@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Switch from "react-switch"
 import axios from 'axios'
 import moment from 'moment'
@@ -20,10 +21,11 @@ export default function Search() {
   const [woeid, setWoeid] = useState('')
   const [displayCard, setDisplayCard] = useState(false)
   const [tempScale, setTempScale] = useState('celsius')
+    // if checked = false, then the toggle is to the left, which indicates celsuis (aka starting position)
+    const [checked, setChecked] = useState(false)
   const [applicableDate, setApplicableDate] = useState('')
   const [minTemp, setMinTemp] = useState('')
   const [maxTemp, setMaxTemp] = useState('')
-  const [checked, setChecked] = useState(false)
   const [isDisabled, setIsDisabled] = useState(true)
 
   // date picker state
@@ -49,12 +51,11 @@ export default function Search() {
     console.log(data)
   }
 
-
   useEffect(() => {
     async function fetchAllLocationData() {
       const { data } = await axios.get(`https://stormy-atoll-29846.herokuapp.com/metaweather.com/api/location/${woeid}`)
       setAllLocationData(data)
-      setApplicableDate(moment(data.consolidated_weather[0].applicable_date).format('DD/MM/YYYY'))
+      setApplicableDate(moment(data.consolidated_weather[0].applicable_date).format('MMMM Do YYYY'))
       setMinTemp(data.consolidated_weather[0].min_temp)
       setMaxTemp(data.consolidated_weather[0].max_temp)
       setDisplayCard(true)
@@ -150,8 +151,12 @@ export default function Search() {
         minTemp={minTemp}
         maxTemp={maxTemp}
         tempScale={tempScale}
-
       />
+      <Link to={{
+        pathname: "/weather-app/five-day-forecast",
+        state: { woeid, search, allLocationData, tempScale, checked }
+      }}
+      ><button>See 5 day forecast for {search}</button></Link>
     </>
   } else if (searchResults.length > 1 && userSubmitted) {
     results = <>
@@ -162,7 +167,6 @@ export default function Search() {
       })}
     </>
   }
-
 
   return (
     <>
@@ -190,7 +194,6 @@ export default function Search() {
         showYearDropdown
         dropdownMode="select"
         maxDate={addDays(new Date(), 5)}
-      // onSelect={handleDateSelect}        
       />
       <button className="submit" onClick={handleDateSubmit}>Let's Go!</button>
     </>
